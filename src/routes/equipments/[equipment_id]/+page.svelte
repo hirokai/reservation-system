@@ -218,6 +218,10 @@
 	};
 </script>
 
+<svelte:head>
+	<title>{data.equipment.name} - 装置予約システム</title>
+</svelte:head>
+
 <main class="gap-4">
 	<h1 class="text-xl">装置の予約: {data.equipment.name}</h1>
 

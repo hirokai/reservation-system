@@ -4,6 +4,10 @@
 	export let data;
 </script>
 
+<svelte:head>
+	<title>装置予約システム</title>
+</svelte:head>
+
 <main class="gap-4 p-4">
 	<h1><a href="/reservations/me">自分の予約一覧</a></h1>
 

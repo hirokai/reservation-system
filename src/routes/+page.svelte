@@ -4,6 +4,10 @@
 	let tabSet: number = 0;
 </script>
 
+<svelte:head>
+	<title>装置予約システム</title>
+</svelte:head>
+
 <div class="container h-full mx-auto flex justify-center items-center">
 	<TabGroup>
 		<Tab bind:group={tabSet} name="tab1" value={0}>
