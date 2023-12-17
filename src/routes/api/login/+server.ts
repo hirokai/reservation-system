@@ -10,7 +10,7 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
 	}
 
 	const session_id = 'S_' + nanoid();
-	await db.query('INSERT INTO user_session (session_id,"user") VALUES ($1)', [session_id]);
+	await db.query('INSERT INTO user_session (session_id,"user") VALUES ($1,$2)', [session_id, 'u1']);
 
 	cookies.set('myself_id', 'u1', { path: '/', sameSite: 'lax' });
 	cookies.set('session_id', session_id, { path: '/', sameSite: 'lax' });

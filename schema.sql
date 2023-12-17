@@ -38,7 +38,7 @@ STABLE;
 CREATE TABLE "user"(
     id text PRIMARY KEY DEFAULT (concat('U', nanoid())),
     name text NOT NULL,
-    email text NOT NULL
+    email text NOT NULL UNIQUE
 );
 
 CREATE TABLE "user_session"(

@@ -1,11 +1,9 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { formatTime } from '$lib/utils';
 	// data object is set from +page.ts
 	export let data;
-	import { Table } from '@skeletonlabs/skeleton';
 	import _ from 'lodash-es';
-	import type { TableSource } from '@skeletonlabs/skeleton';
-	import { tableMapperValues } from '@skeletonlabs/skeleton';
 	// Define data type
 	/** @type {import('./$types').PageData}*/
 	/** @type {import('./$types').PageServerLoad} */
@@ -13,13 +11,6 @@
 
 	let selectMode: '1st' | '2nd' | 'none' = '1st';
 
-	const formatTime = (time: Date) => {
-		// 日付と時刻を指定する
-		return `${time.getFullYear()}/${time.getMonth() + 1}/${time.getDate()} ${time.getHours()}:${time
-			.getMinutes()
-			.toString()
-			.padStart(2, '0')}`;
-	};
 	const formatDateHyphen = (time: Date) => {
 		// 日付と時刻を指定する
 		return `${time.getFullYear()}-${time.getMonth() + 1}-${time.getDate()}`;
@@ -79,7 +70,7 @@
 		0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23
 	];
 	const onClickCell = (date: Date, time: number) => (ev: MouseEvent) => {
-		const rect = ev.target!.getBoundingClientRect();
+		const rect = (ev.target as HTMLTableCellElement).getBoundingClientRect();
 		console.log(ev.clientX - rect.left, ev.clientY - rect.top);
 		console.log({ date, time });
 		if (selectMode == '1st') {
@@ -104,13 +95,20 @@
 				reserve_start_time_min = 0;
 			} else {
 				reserve_end_date = d;
-				reserve_end_time_hour = time;
+				reserve_end_time_hour = time + 1;
 				reserve_end_time_min = 0;
 			}
 			selectMode = '1st';
 		}
 	};
-	const withinSelected = (date: Date, time: number, s1, s2, e1, e2) => {
+	const withinSelected = (
+		date: Date,
+		time: number,
+		_s1: string,
+		_s2: string,
+		_e1: string,
+		_e2: string
+	) => {
 		const d = new Date(date);
 		d.setHours(time);
 		d.setMinutes(0);
@@ -120,7 +118,9 @@
 		s.setHours(parseInt(reserve_start_time.split(':')[0]));
 		s.setMinutes(0);
 		const e = new Date(reserve_end_date);
-		e.setHours(parseInt(reserve_end_time.split(':')[0]));
+		const delta =
+			reserve_start_date == reserve_end_date && reserve_start_time == reserve_end_time ? 0 : 1;
+		e.setHours(parseInt(reserve_end_time.split(':')[0]) - delta);
 		e.setMinutes(0);
 		if (s <= d && d <= e) {
 			return true;
@@ -146,7 +146,7 @@
 		return false;
 	};
 
-	const onClickReserve = (ev) => {
+	const onClickReserve = () => {
 		fetch('/api/reserve', {
 			method: 'POST',
 			headers: {
@@ -157,22 +157,27 @@
 				start_time: reserve_start_time_hour + ':' + reserve_start_time_min,
 				end_date: reserve_end_date,
 				end_time: reserve_end_time_hour + ':' + reserve_end_time_min,
-				equipment: data.equipment.id,
-				user: data.myself.id
+				equipment: data.equipment.id
 			})
 		})
 			.then((res) => res.json())
 			.then((res) => {
+				if (!res.ok) {
+					alert('予約に失敗しました');
+					return;
+				}
 				console.log({ res });
 				alert('予約しました');
-				reservations = res.map((r) => {
-					return {
-						id: r.id,
-						user: r.user,
-						start_time: new Date(r.start_time),
-						end_time: new Date(r.end_time)
-					};
-				});
+				reservations = res.reservations.map(
+					(r: { id: string; user: string; start_time: string; end_time: string }) => {
+						return {
+							id: r.id,
+							user: r.user,
+							start_time: new Date(r.start_time),
+							end_time: new Date(r.end_time)
+						};
+					}
+				);
 				reserve_start_date = '';
 				reserve_end_date = '';
 				reserve_start_time_hour = 0;
@@ -199,14 +204,16 @@
 			.then((res) => res.json())
 			.then((res) => {
 				console.log({ res });
-				reservations = res.reservations.map((r) => {
-					return {
-						id: r.id,
-						user: r.user,
-						start_time: new Date(r.start_time),
-						end_time: new Date(r.end_time)
-					};
-				});
+				reservations = res.reservations.map(
+					(r: { id: string; user: string; start_time: string; end_time: string }) => {
+						return {
+							id: r.id,
+							user: r.user,
+							start_time: new Date(r.start_time),
+							end_time: new Date(r.end_time)
+						};
+					}
+				);
 			});
 	};
 </script>
@@ -243,9 +250,6 @@
 				<option value={i}>{i.toString().padStart(2, '0')}</option>
 			{/each}
 		</select>
-
-		<input class="inline" type="hidden" name="equipment" value={data.equipment.id} />
-		<input class="inline" type="hidden" name="user" value={data.myself.id} />
 		<button
 			on:click={onClickReserve}
 			class="inline btn variant-filled"
@@ -288,7 +292,7 @@
 											<td class="w-40">{formatTime(reservation.start_time)}</td>
 											<td class="w-40">{formatTime(reservation.end_time)}</td>
 											<td>
-												{#if data.myself.id === reservation.user}
+												{#if data.myself?.id && data.myself.id === reservation.user}
 													<button
 														class="bg-pink-500 text-white active:bg-pink-600 font-bold uppercase text-xs px-4 py-2 rounded shadow hover:shadow-md outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
 														type="button"
@@ -314,7 +318,7 @@
 								</tr>
 								{#each time_slots as time}
 									<tr>
-										<td class="w-8 pr-2 text-right">{time}</td>
+										<td class="w-8 pr-2 text-right align-top text-sm">{time}</td>
 										{#each dates as date}
 											<td
 												class="w-8 h-8 cursor-pointer hover:bg-blue-400 {withinSelected(
