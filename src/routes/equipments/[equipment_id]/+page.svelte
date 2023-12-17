@@ -317,7 +317,7 @@
 										<td class="w-8 pr-2 text-right">{time}</td>
 										{#each dates as date}
 											<td
-												class="w-8 h-8 cursor-pointer hover:bg-blue-100 {withinSelected(
+												class="w-8 h-8 cursor-pointer hover:bg-blue-400 {withinSelected(
 													date,
 													time,
 													reserve_start_date,
