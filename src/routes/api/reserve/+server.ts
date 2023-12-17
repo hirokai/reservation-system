@@ -66,8 +66,8 @@ export const POST: RequestHandler = async ({ request, cookies, locals }) => {
 		equipment: data1.equipment
 	};
 	const data = {
-		start_time: new Date(`${rawData.start_date} ${rawData.start_time}`),
-		end_time: new Date(`${rawData.end_date} ${rawData.end_time}`),
+		start_time: new Date(`${rawData.start_date} ${rawData.start_time}+09`),
+		end_time: new Date(`${rawData.end_date} ${rawData.end_time}+09`),
 		user: registered_user_id,
 		equipment: rawData.equipment
 	};

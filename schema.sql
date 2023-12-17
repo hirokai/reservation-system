@@ -44,7 +44,7 @@ CREATE TABLE "user"(
 CREATE TABLE "user_session"(
     session_id text PRIMARY KEY DEFAULT (concat('S', nanoid())),
     "user" text NOT NULL REFERENCES "user"(id),
-    timestamp timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP
+    timestamp timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE place(
@@ -63,9 +63,9 @@ CREATE TABLE equipment(
 CREATE TABLE reservation(
     id text PRIMARY KEY DEFAULT (concat('R', nanoid())),
     "user" text NOT NULL REFERENCES "user"(id),
-    timestamp timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    start_time timestamp NOT NULL,
-    end_time timestamp NOT NULL,
+    timestamp timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    start_time timestamp with time zone NOT NULL,
+    end_time timestamp with time zone NOT NULL,
     equipment text NOT NULL REFERENCES equipment(id)
 );
 
