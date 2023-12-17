@@ -9,6 +9,7 @@
 	/** @type {import('./$types').PageServerLoad} */
 	import { TabGroup, Tab, TabAnchor } from '@skeletonlabs/skeleton';
 
+	export const ssr = false;
 	let selectMode: '1st' | '2nd' | 'none' = '1st';
 
 	const formatDateHyphen = (time: Date) => {

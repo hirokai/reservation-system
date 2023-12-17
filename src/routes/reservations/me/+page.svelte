@@ -3,6 +3,7 @@
 
 	/** @type {import('./$types').PageData}*/
 	export let data;
+	export const ssr = false;
 
 	$: reservations = data.reservations;
 	const cancel = (eq: string, id: string) => {
