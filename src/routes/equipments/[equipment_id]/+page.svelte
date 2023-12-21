@@ -32,6 +32,7 @@
 	};
 	let reserve_start_date: string;
 	let reserve_end_date: string;
+	let reserve_comment: string = '';
 	// let reserve_start_time: string = '00:00';
 	// let reserve_end_time: string = '00:00';
 	let reserve_start_time_hour: number = 0;
@@ -158,7 +159,8 @@
 				start_time: reserve_start_time_hour + ':' + reserve_start_time_min,
 				end_date: reserve_end_date,
 				end_time: reserve_end_time_hour + ':' + reserve_end_time_min,
-				equipment: data.equipment.id
+				equipment: data.equipment.id,
+				reserve_comment
 			})
 		})
 			.then((res) => res.json())
@@ -226,41 +228,54 @@
 <main class="gap-4">
 	<h1 class="text-xl">装置の予約: {data.equipment.name}</h1>
 
-	<div class="card m-2 p-4 w-5/6">
+	<div class="card m-2 p-4 w-3/6">
 		<h2>予約する</h2>
-		<label for="date" class="inline">開始日付</label>
-		<input class="inline" type="date" id="date" name="start_date" bind:value={reserve_start_date} />
-		<label class="inline" for="time">開始時刻</label>
-		<select bind:value={reserve_start_time_hour}>
-			{#each _.range(24) as i}
-				<option value={i}>{i.toString().padStart(2, '0')}</option>
-			{/each}
-		</select>
-		<select bind:value={reserve_start_time_min}>
-			{#each [0, 15, 30, 45] as i}
-				<option value={i}>{i.toString().padStart(2, '0')}</option>
-			{/each}
-		</select>
 
-		<label class="inline" for="date">終了日付</label>
-		<input class="inline" type="date" id="date" name="end_date" bind:value={reserve_end_date} />
-		<label class="inline" for="duration">終了時刻</label>
-		<select bind:value={reserve_end_time_hour}>
-			{#each _.range(24) as i}
-				<option value={i}>{i.toString().padStart(2, '0')}</option>
-			{/each}
-		</select>
-		<select bind:value={reserve_end_time_min}>
-			{#each [0, 15, 30, 45] as i}
-				<option value={i}>{i.toString().padStart(2, '0')}</option>
-			{/each}
-		</select>
+		<div class="mb-2 mt-2">
+			<label for="date" class="inline">開始</label>
+			<input
+				class="inline"
+				type="date"
+				id="date"
+				name="start_date"
+				bind:value={reserve_start_date}
+			/>
+			<select bind:value={reserve_start_time_hour}>
+				{#each _.range(24) as i}
+					<option value={i}>{i.toString().padStart(2, '0')}</option>
+				{/each}
+			</select>
+			<select bind:value={reserve_start_time_min}>
+				{#each [0, 15, 30, 45] as i}
+					<option value={i}>{i.toString().padStart(2, '0')}</option>
+				{/each}
+			</select>
+		</div>
+
+		<div class="mb-2 mt-2">
+			<label class="inline" for="date">終了</label>
+			<input class="inline" type="date" id="date" name="end_date" bind:value={reserve_end_date} />
+			<select bind:value={reserve_end_time_hour}>
+				{#each _.range(24) as i}
+					<option value={i}>{i.toString().padStart(2, '0')}</option>
+				{/each}
+			</select>
+			<select bind:value={reserve_end_time_min}>
+				{#each [0, 15, 30, 45] as i}
+					<option value={i}>{i.toString().padStart(2, '0')}</option>
+				{/each}
+			</select>
+		</div>
+		<div class="mb-2 mt-2">
+			<label for="reserve-comment">コメント</label>
+			<input type="text" name="" id="reserve-comment" class="w-80" bind:value={reserve_comment} />
+		</div>
 		<button
 			on:click={onClickReserve}
 			class="inline btn variant-filled"
 			disabled={!data.auth.user?.email}>予約する</button
 		>
-		<div class="h-8 text-right" class:invisible={!!data.auth.user?.email}>
+		<div class="h-8" class:invisible={!!data.auth.user?.email}>
 			予約するにはログインしてください
 		</div>
 	</div>
@@ -281,6 +296,7 @@
 									<th>予約者</th>
 									<th>開始時刻</th>
 									<th>終了時刻</th>
+									<th>コメント</th>
 								</tr>
 							</thead>
 							{#if reservations.length === 0}
@@ -296,6 +312,7 @@
 											<td class="w-40">{data.users[reservation.user].name}</td>
 											<td class="w-40">{formatTime(reservation.start_time)}</td>
 											<td class="w-40">{formatTime(reservation.end_time)}</td>
+											<td class="w-40">{reservation.comment || ''}</td>
 											<td>
 												{#if data.myself?.id && data.myself.id === reservation.user}
 													<button

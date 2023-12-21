@@ -27,6 +27,7 @@ export async function load({ params, locals }) {
 		start_time: Date;
 		end_time: Date;
 		timestamp: Date;
+		comment: string | undefined;
 	}[];
 	return {
 		myself,

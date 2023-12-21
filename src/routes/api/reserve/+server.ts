@@ -63,18 +63,20 @@ export const POST: RequestHandler = async ({ request, cookies, locals }) => {
 		end_date: data1.end_date,
 		start_time: data1.start_time,
 		end_time: data1.end_time,
-		equipment: data1.equipment
+		equipment: data1.equipment,
+		reserve_comment: data1.reserve_comment
 	};
 	const data = {
 		start_time: new Date(`${rawData.start_date} ${rawData.start_time}+09`),
 		end_time: new Date(`${rawData.end_date} ${rawData.end_time}+09`),
 		user: registered_user_id,
-		equipment: rawData.equipment
+		equipment: rawData.equipment,
+		reserve_comment: rawData.reserve_comment
 	};
 	console.log({ data });
 	await db.query(
-		'INSERT INTO reservation (start_time, end_time, "user", equipment) VALUES ($1, $2, $3, $4)',
-		[data.start_time, data.end_time, data.user, data.equipment]
+		'INSERT INTO reservation (start_time, end_time, "user", equipment, comment) VALUES ($1, $2, $3, $4,$5)',
+		[data.start_time, data.end_time, data.user, data.equipment, data.reserve_comment]
 	);
 
 	const reservations = (await db.query(

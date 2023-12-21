@@ -30,6 +30,7 @@ export async function load({ params, locals }) {
 		start_time: Date;
 		end_time: Date;
 		timestamp: Date;
+		comment: string | undefined;
 	}[];
 	const usersDict = keyBy(users, 'id') as {
 		[id: string]: { id: string; name: string; email: string };
@@ -43,6 +44,7 @@ export async function load({ params, locals }) {
 			id: string;
 			start_time: Date;
 			end_time: Date;
+			comment: string | undefined;
 		}[],
 		equipment: machine as {
 			id: string;

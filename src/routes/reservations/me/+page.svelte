@@ -24,12 +24,19 @@
 			.then((res) => {
 				console.log({ res });
 				reservations = res.reservations.map(
-					(r: { id: string; user: string; start_time: string; end_time: string }) => {
+					(r: {
+						id: string;
+						user: string;
+						start_time: string;
+						end_time: string;
+						comment: string | undefined;
+					}) => {
 						return {
 							id: r.id,
 							user: r.user,
 							start_time: new Date(r.start_time),
-							end_time: new Date(r.end_time)
+							end_time: new Date(r.end_time),
+							comment: r.comment
 						};
 					}
 				);
@@ -45,6 +52,7 @@
 				<th>装置</th>
 				<th>開始時刻</th>
 				<th>終了時刻</th>
+				<th>コメント</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -57,6 +65,7 @@
 					</td><td class="w-40">{formatTime(r.start_time)}</td><td class="w-40"
 						>{formatTime(r.end_time)}</td
 					>
+					<td>{r.comment || ''}</td>
 					<td>
 						<button
 							class="bg-pink-500 text-white active:bg-pink-600 font-bold uppercase text-xs px-4 py-2 rounded shadow hover:shadow-md outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
