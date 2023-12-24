@@ -121,7 +121,7 @@
 			</tr>
 		</thead>
 		<tbody>
-			{#each places as place}
+			{#each places || [] as place}
 				<tr
 					><td><a href="/admin/places/{place.id}" class="hover:underline">{place.name}</a></td>
 					<td>{place.description || ''}</td></tr
