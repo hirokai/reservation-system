@@ -1,13 +1,14 @@
-import type { RequestHandler } from '@sveltejs/kit';
+import { error, type RequestHandler } from '@sveltejs/kit';
 import db from '$lib/server/database';
 import { getAuthLocals } from 'svelte-google-auth/server';
+import { checkAuth } from '$lib/server/utils';
 
 export const PUT: RequestHandler = async ({ request, params, locals }) => {
-	const user = getAuthLocals(locals).user;
-
-	if (!user) {
-		return new Response(String('Not logged in'), { status: 401 });
+	const user = await checkAuth(locals);
+	if (!user || !user.admin) {
+		throw error(401, 'Not admin');
 	}
+
 	const rawData = await request.json();
 	if (!rawData.name) {
 		return new Response(String('No name'), { status: 400 });

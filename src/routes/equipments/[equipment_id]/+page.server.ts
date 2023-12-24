@@ -1,14 +1,16 @@
 import db from '$lib/server/database';
+import { checkAuth } from '$lib/server/utils.js';
 import { error } from '@sveltejs/kit';
 import { keyBy } from 'lodash-es';
 import { getAuthLocals } from 'svelte-google-auth/server';
 
 /** @type {import('./$types').PageServerLoad} */
 export async function load({ params, locals }) {
-	const user = getAuthLocals(locals).user;
-	const user_db = user
-		? await db.oneOrNone('SELECT * FROM "user" WHERE email = $1', [user.email])
-		: undefined;
+	const user = await checkAuth(locals);
+	if (!user) {
+		throw error(401, 'Not logged in');
+	}
+	const user_db = await db.oneOrNone('SELECT * FROM "user" WHERE email = $1', [user.email]);
 	const myself = user_db ? { id: user_db.id, email: user_db.email } : undefined;
 
 	const machine = await db.oneOrNone('SELECT * FROM equipment WHERE id = $1', params.equipment_id);

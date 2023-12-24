@@ -1,11 +1,14 @@
 import db from '$lib/server/database';
+import { checkAuth } from '$lib/server/utils.js';
 import { error } from '@sveltejs/kit';
 import { getAuthLocals } from 'svelte-google-auth/server';
 
 /** @type {import('./$types').PageServerLoad} */
 export async function load({ params, locals }) {
-	const user = getAuthLocals(locals).user;
-	// ToDo: Admin role check
+	const user = await checkAuth(locals);
+	if (!user || !user.admin) {
+		return null;
+	}
 	const user_db = user
 		? await db.oneOrNone('SELECT * FROM "user" WHERE email = $1', [user.email])
 		: undefined;

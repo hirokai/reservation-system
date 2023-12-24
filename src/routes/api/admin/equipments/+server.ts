@@ -1,4 +1,4 @@
-import type { RequestHandler } from '@sveltejs/kit';
+import { error, type RequestHandler } from '@sveltejs/kit';
 import db, { pgp } from '$lib/server/database';
 import { getAuthLocals } from 'svelte-google-auth/server';
 import Papa from 'papaparse';
@@ -7,10 +7,9 @@ import { checkAuth } from '$lib/server/utils';
 
 /** @type {import('./$types').RequestHandler} */
 export const POST: RequestHandler = async ({ request, cookies, locals }) => {
-	const user = getAuthLocals(locals).user;
-
-	if (!user) {
-		return new Response(String('Not logged in'), { status: 401 });
+	const user = await checkAuth(locals);
+	if (!user || !user.admin) {
+		throw error(401, 'Not admin');
 	}
 	const typ = request.headers.get('content-type');
 	let ids = [] as string[];

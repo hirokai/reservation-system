@@ -9,10 +9,7 @@ import { checkAuth } from '$lib/server/utils';
 export const POST: RequestHandler = async ({ request, cookies, locals }) => {
 	const user = await checkAuth(locals);
 
-	if (!user) {
-		return new Response(String('Not logged in'), { status: 401 });
-	}
-	if (!user.admin) {
+	if (!user?.admin) {
 		return new Response(String('Not admin'), { status: 401 });
 	}
 
