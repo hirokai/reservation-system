@@ -4,7 +4,7 @@ import { nanoid } from 'nanoid';
 
 /** @type {import('./$types').RequestHandler} */
 export const POST: RequestHandler = async ({ request, cookies }) => {
-	console.log('Loggin in');
+	console.log('Logging in');
 	if (!request.body) {
 		return new Response(String('No body'), { status: 400 });
 	}

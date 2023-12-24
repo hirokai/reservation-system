@@ -2,8 +2,7 @@ import { DB_DATABASE, DB_PORT, DB_HOST, DB_USER, DB_PASSWORD } from '$env/static
 import { dev } from '$app/environment';
 
 import pg from 'pg-promise';
-const pgp = pg();
-console.log(process.env, DB_DATABASE);
+export const pgp = pg();
 // DB接続情報
 const initOptions = {
 	host: DB_HOST,
@@ -14,7 +13,6 @@ const initOptions = {
 	ssl: !dev
 };
 
-console.log(initOptions);
 // DB接続
 const db = pgp(initOptions);
 

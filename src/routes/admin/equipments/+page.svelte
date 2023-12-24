@@ -60,10 +60,16 @@
 				},
 				body: txt
 			})
-				.then((res) => res.json())
+				.then((res) => {
+					if (res.ok) {
+						alert('インポートしました。');
+					} else {
+						alert('インポートに失敗しました。');
+					}
+					return res.json();
+				})
 				.then((res) => {
 					places = keyBy(res.places, 'id');
-					alert('インポートしました。');
 				});
 		};
 
@@ -115,6 +121,7 @@
 		<thead>
 			<tr>
 				<th>名前</th>
+				<th>機種</th>
 				<th>場所</th>
 				<th class="w-80">概要</th>
 			</tr>
@@ -123,6 +130,7 @@
 			{#each equipments as eq}
 				<tr
 					><td><a href="/admin/equipments/{eq.id}" class="my-link">{eq.name}</a></td>
+					<td>{eq.model}</td>
 					<td
 						><a href="/admin/places/{eq.place}" class="my-link">{places[eq.place]?.name || ''}</a
 						></td
@@ -156,7 +164,7 @@
 			<input type="text" id="name" name="name" class="input" bind:value={add_name} />
 			<label for="place">場所</label>
 			<select id="place" name="place" class="input" bind:value={add_place}>
-				{#each places as place}
+				{#each Object.values(places) as place}
 					<option value={place.id}>{place.name}</option>
 				{/each}
 			</select>

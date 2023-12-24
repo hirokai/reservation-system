@@ -1,13 +1,11 @@
 import db from '$lib/server/database';
-import { redirect } from '@sveltejs/kit';
-import { keyBy } from 'lodash-es';
+import { groupBy, keyBy, mapValues } from 'lodash-es';
 
 import { getAuthLocals, hydrateAuth, isSignedIn } from 'svelte-google-auth/server';
 
 /** @type {import('./$types').LayoutServerLoad} */
-export async function load({ locals }) {
+export async function load({ locals, params }) {
 	const user = getAuthLocals(locals).user;
-	console.log('load...', user?.email);
 	// if (!user) {
 	// 	redirect(300, '/');
 	// }
@@ -16,16 +14,20 @@ export async function load({ locals }) {
 		// redirect(300,'/')
 		// return {}
 	}
-	const machines = await db.manyOrNone('SELECT * FROM equipment');
+	const equipments = await db.manyOrNone('SELECT id,place,name FROM equipment');
+	const places = mapValues(keyBy(await db.manyOrNone('SELECT id,name FROM place'), 'id'), 'name');
 	const users = await db.query('SELECT * FROM "user"');
+	const parseRow = (data: any) => {
+		return {
+			id: data.id,
+			name: data.name,
+			place_name: places[data.place]
+		};
+	};
 	return {
 		...hydrateAuth(locals),
 		users: keyBy(users, 'id') as { [id: string]: { id: string; name: string; email: string } },
-
-		equipments: machines as {
-			id: string;
-			name: string;
-			description: string;
-		}[]
+		equipmentsByRoom: groupBy(equipments.map(parseRow), 'place_name'),
+		id: params.id
 	};
 }

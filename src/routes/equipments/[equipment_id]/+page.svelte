@@ -73,8 +73,6 @@
 	];
 	const onClickCell = (date: Date, time: number) => (ev: MouseEvent) => {
 		const rect = (ev.target as HTMLTableCellElement).getBoundingClientRect();
-		console.log(ev.clientX - rect.left, ev.clientY - rect.top);
-		console.log({ date, time });
 		if (selectMode == '1st') {
 			const d = formatDateHyphen(date);
 			reserve_start_date = d;
@@ -169,7 +167,6 @@
 					alert('予約に失敗しました');
 					return;
 				}
-				console.log({ res });
 				alert('予約しました');
 				reservations = res.reservations.map(
 					(r: { id: string; user: string; start_time: string; end_time: string }) => {
@@ -206,7 +203,6 @@
 		})
 			.then((res) => res.json())
 			.then((res) => {
-				console.log({ res });
 				reservations = res.reservations.map(
 					(r: { id: string; user: string; start_time: string; end_time: string }) => {
 						return {
@@ -225,10 +221,20 @@
 	<title>{data.equipment.name} - 装置予約システム</title>
 </svelte:head>
 
-<main class="gap-4">
-	<h1 class="text-xl">装置の予約: {data.equipment.name}</h1>
+<main class="gap-4 m-4">
+	<ol class="breadcrumb my-3">
+		<li class="crumb"><a class="anchor" href="/equipments">装置予約</a></li>
+		<li class="crumb-separator" aria-hidden>&rsaquo;</li>
+		<li>{data.equipment.name}</li>
+	</ol>
+	<h1 class="text-xl mb-4">
+		装置の予約: {data.equipment.name}
+		<a class="inline btn variant-filled text-sm ml-6" href="/admin/equipments/{data.equipment.id}"
+			>管理画面へ</a
+		>
+	</h1>
 
-	<div class="card m-2 p-4 w-3/6">
+	<div class="card m-2 p-4 w-6/6 lg:w-3/6">
 		<h2>予約する</h2>
 
 		<div class="mb-2 mt-2">
@@ -268,7 +274,7 @@
 		</div>
 		<div class="mb-2 mt-2">
 			<label for="reserve-comment">コメント</label>
-			<input type="text" name="" id="reserve-comment" class="w-80" bind:value={reserve_comment} />
+			<input type="text" name="" id="reserve-comment" class="w-full" bind:value={reserve_comment} />
 		</div>
 		<button
 			on:click={onClickReserve}
@@ -281,7 +287,7 @@
 	</div>
 	<div class="m-2 p-4">
 		<h2>予約一覧</h2>
-		<TabGroup>
+		<TabGroup class="w-6/6 lg:w-600">
 			<Tab bind:group={tabSet} name="tab1" value={0}>カレンダー表示</Tab>
 			<Tab bind:group={tabSet} name="tab2" value={1}>
 				<span>一覧表示</span>

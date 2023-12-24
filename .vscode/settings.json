@@ -114,5 +114,6 @@
 		"transition",
 		"width",
 		"zIndex"
-	]
+	],
+	"workbench.tree.indent": 16
 }

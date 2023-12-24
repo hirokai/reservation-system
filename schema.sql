@@ -4,6 +4,8 @@ DROP TABLE equipment;
 
 DROP TABLE place;
 
+DROP TABLE user_permission;
+
 DROP TABLE "user_session";
 
 DROP TABLE "user";
@@ -36,9 +38,10 @@ LANGUAGE PLPGSQL
 STABLE;
 
 CREATE TABLE "user"(
-    id text PRIMARY KEY DEFAULT (concat('U', nanoid())),
+    id text PRIMARY KEY DEFAULT (concat('U', nanoid(12))),
     name text NOT NULL,
-    email text NOT NULL UNIQUE
+    email text NOT NULL UNIQUE,
+    "role" text
 );
 
 CREATE TABLE "user_session"(
@@ -47,17 +50,35 @@ CREATE TABLE "user_session"(
     timestamp timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
+CREATE TABLE "user_permission"(
+    "user" text NOT NULL REFERENCES "user"(id),
+    permission text NOT NULL,
+    PRIMARY KEY ("user", permission)
+);
+
 CREATE TABLE place(
-    id text PRIMARY KEY DEFAULT (concat('P', nanoid())),
+    id text PRIMARY KEY DEFAULT (concat('P', nanoid(8))),
     name text NOT NULL,
     description text
 );
 
 CREATE TABLE equipment(
-    id text PRIMARY KEY DEFAULT (concat('E', nanoid())),
-    name text NOT NULL,
-    description text NOT NULL,
-    place text REFERENCES place(id)
+    id text PRIMARY KEY DEFAULT (concat('E', nanoid(8))),
+    name text NOT NULL UNIQUE,
+    description text,
+    place text REFERENCES place(id),
+    model text,
+    metadata jsonb,
+    prop1_key text,
+    prop1_type text,
+    prop2_key text,
+    prop2_type text,
+    prop3_key text,
+    prop3_type text,
+    prop4_key text,
+    prop4_type text,
+    prop5_key text,
+    prop5_type text
 );
 
 CREATE TABLE reservation(
@@ -66,6 +87,17 @@ CREATE TABLE reservation(
     timestamp timestamp with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
     start_time timestamp with time zone NOT NULL,
     end_time timestamp with time zone NOT NULL,
-    equipment text NOT NULL REFERENCES equipment(id)
+    equipment text NOT NULL REFERENCES equipment(id),
+    "comment" text,
+    prop1_key text,
+    prop1_value text,
+    prop2_key text,
+    prop2_value text,
+    prop3_key text,
+    prop3_value text,
+    prop4_key text,
+    prop4_value text,
+    prop5_key text,
+    prop5_value text
 );
 

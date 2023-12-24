@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { formatTime } from '$lib/utils';
 
-	/** @type {import('./$types').PageData}*/
+	import type PageServerData from './$types';
 	export let data;
 	export const ssr = false;
 
@@ -22,7 +22,6 @@
 		})
 			.then((res) => res.json())
 			.then((res) => {
-				console.log({ res });
 				reservations = res.reservations.map(
 					(r: {
 						id: string;
@@ -44,9 +43,9 @@
 	};
 </script>
 
-<main>
+<main class="m-4">
 	<h1>自分の予約一覧</h1>
-	<table>
+	<table class="my-table">
 		<thead>
 			<tr>
 				<th>装置</th>

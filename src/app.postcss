@@ -3,4 +3,28 @@
 @tailwind utilities;
 @tailwind variants;
 
-html, body { @apply h-full overflow-hidden; }
+html,
+body {
+	@apply h-full overflow-hidden;
+}
+
+.my-table td {
+	@apply px-4 py-1;
+	text-align: left;
+	border-top: 1px solid #222;
+	border-bottom: 1px solid #222;
+}
+
+.my-table th {
+	@apply px-4 py-1;
+	text-align: left;
+	border-bottom: 1px solid #222;
+}
+
+a.my-link:hover {
+	text-decoration: underline;
+}
+
+main h1 {
+	@apply text-xl font-bold mb-4;
+}

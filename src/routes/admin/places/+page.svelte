@@ -57,9 +57,15 @@
 				},
 				body: txt
 			})
-				.then((res) => res.json())
 				.then((res) => {
-					console.log({ res });
+					if (res.ok) {
+						alert('インポートしました。');
+					} else {
+						alert('インポートに失敗しました。');
+					}
+					return res.json();
+				})
+				.then((res) => {
 					places = res.places;
 				});
 		};

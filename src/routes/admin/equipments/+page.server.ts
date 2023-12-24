@@ -8,6 +8,7 @@ export async function load({ params, locals }) {
 			id: data.id,
 			name: data.name,
 			description: data.description,
+			model: data.model,
 			place: data.place
 		};
 	}

@@ -23,10 +23,13 @@ export const POST: RequestHandler = async ({ request, cookies, locals }) => {
 		const dicts = rows.map((row: any) => ({
 			name: row['名前'],
 			description: row['概要'],
+			model: row['機種'],
 			place: placesDict[row['場所']] || null
 		}));
 		console.log({ dicts });
-		const cs = new pgp.helpers.ColumnSet(['name', 'description', 'place'], { table: 'equipment' });
+		const cs = new pgp.helpers.ColumnSet(['name', 'description', 'model', 'place'], {
+			table: 'equipment'
+		});
 		const query = pgp.helpers.insert(dicts, cs);
 		ids = (await db.manyOrNone(query + ' RETURNING id')).map((r) => r.id);
 	} else if (typ == 'application/json') {

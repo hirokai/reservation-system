@@ -39,8 +39,10 @@
   },
   "type": "module",
   "dependencies": {
+    "@types/papaparse": "^5.3.14",
     "lodash-es": "^4.17.21",
     "nanoid": "^5.0.4",
+    "papaparse": "^5.4.1",
     "pg-promise": "^11.5.4",
     "svelte-google-auth": "^0.7.2"
   }
