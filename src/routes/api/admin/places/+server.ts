@@ -8,7 +8,6 @@ import { checkAuth } from '$lib/server/utils';
 /** @type {import('./$types').RequestHandler} */
 export const POST: RequestHandler = async ({ request, cookies, locals }) => {
 	const user = await checkAuth(locals);
-
 	if (!user?.admin) {
 		return new Response(String('Not admin'), { status: 401 });
 	}

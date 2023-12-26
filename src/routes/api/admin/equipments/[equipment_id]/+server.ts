@@ -1,6 +1,5 @@
 import { error, type RequestHandler } from '@sveltejs/kit';
 import db from '$lib/server/database';
-import { getAuthLocals } from 'svelte-google-auth/server';
 import { checkAuth } from '$lib/server/utils';
 
 export const PUT: RequestHandler = async ({ request, params, locals }) => {

@@ -18,14 +18,15 @@ export async function load({ params, locals }) {
 	}
 	function parseRow(data: any) {
 		return {
-			id: data['id'],
-			name: data['name'],
-			description: data['description'],
-			place: data['pid'] ? { id: data['pid'], name: data['pname'] } : undefined
+			id: data['id'] as string,
+			name: data['name'] as string,
+			description: data['description'] as string | undefined,
+			place: data['pid'] ? { id: data['pid'] as string, name: data['pname'] as string } : undefined,
+			gcalendar: data['gcalendar_id'] as string | undefined
 		};
 	}
 	const equipment = await db.oneOrNone(
-		'SELECT e.id, e.name, p.id as pid, p.name as pname FROM equipment e LEFT JOIN place p ON e.place = p.id WHERE e.id = $1',
+		'SELECT e.id, e.name, p.id as pid, p.name as pname, c.gcalendar_id FROM equipment e LEFT JOIN place p ON e.place = p.id LEFT JOIN gcalendar_for_equipment c ON e.id=c.equipment WHERE e.id = $1',
 		[params.id]
 	);
 	if (!equipment) {

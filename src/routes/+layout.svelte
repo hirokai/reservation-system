@@ -8,7 +8,6 @@
 	import type LayoutServerLoad from './$types';
 
 	export let data;
-	console.log(data.equipmentsByRoom);
 	const login = () => {
 		console.log('Logging in');
 		fetch('/api/login', {
@@ -29,17 +28,20 @@
 		<nav class="list-nav">
 			{#if admin}
 				<h1><a href="/admin">管理画面</a></h1>
-				<h2 class={$page.url.pathname.startsWith('/admin/places') ? 'bg-primary-500' : ''}>
+				<h2 class={$page.url.pathname.startsWith('/admin/places') ? 'bg-purple-400' : ''}>
 					<a href="/admin/places">場所</a>
 				</h2>
-				<h2 class={$page.url.pathname.startsWith('/admin/equipments') ? 'bg-primary-500' : ''}>
+				<h2 class={$page.url.pathname.startsWith('/admin/equipments') ? 'bg-purple-400' : ''}>
 					<a href="/admin/equipments">装置</a>
 				</h2>
-				<h2 class={$page.url.pathname.startsWith('/admin/users') ? 'bg-primary-500' : ''}>
+				<h2 class={$page.url.pathname.startsWith('/admin/users') ? 'bg-purple-400' : ''}>
 					<a href="/admin/users">ユーザー</a>
 				</h2>
-				<h2 class={$page.url.pathname.startsWith('/admin/reservations') ? 'bg-primary-500' : ''}>
+				<h2 class={$page.url.pathname.startsWith('/admin/reservations') ? 'bg-purple-400' : ''}>
 					<a href="/admin/reservations">予約</a>
+				</h2>
+				<h2 class={$page.url.pathname.startsWith('/admin/calendars') ? 'bg-purple-400' : ''}>
+					<a href="/admin/calendars">Googleカレンダー連携</a>
 				</h2>
 			{:else}
 				<h1><a href="/reservations/me">自分の予約</a></h1>

@@ -2,6 +2,8 @@ import type { RequestHandler } from '@sveltejs/kit';
 import db from '$lib/server/database';
 import { getAuthLocals, hydrateAuth, isSignedIn } from 'svelte-google-auth/server';
 import { nanoid } from 'nanoid';
+import { addReservationToCalendars } from '$lib/server/gcalendar';
+import type { EquipmentId, ReservationId, UserId } from '$lib/types';
 
 function removeUndefined<T>(obj: T): T {
 	if (obj == null) {
@@ -42,7 +44,7 @@ export const POST: RequestHandler = async ({ request, cookies, locals }) => {
 	if (!user) {
 		return new Response(String('Not logged in'), { status: 401 });
 	}
-	const registered_user_id: string | undefined = (
+	const registered_user_id: UserId | undefined = (
 		await db.oneOrNone('SELECT * FROM "user" WHERE email = $1', [user.email])
 	)?.id;
 	const user_id = registered_user_id ?? generateUserId();
@@ -66,18 +68,39 @@ export const POST: RequestHandler = async ({ request, cookies, locals }) => {
 		equipment: data1.equipment,
 		reserve_comment: data1.reserve_comment
 	};
-	const data = {
+	const data: {
+		start_time: Date;
+		end_time: Date;
+		user: UserId;
+		equipment: EquipmentId;
+		reserve_comment: string;
+	} = {
 		start_time: new Date(`${rawData.start_date} ${rawData.start_time}+09`),
 		end_time: new Date(`${rawData.end_date} ${rawData.end_time}+09`),
-		user: registered_user_id,
+		user: user_id,
 		equipment: rawData.equipment,
 		reserve_comment: rawData.reserve_comment
 	};
-	console.log({ data });
-	await db.query(
-		'INSERT INTO reservation (start_time, end_time, "user", equipment, comment) VALUES ($1, $2, $3, $4,$5)',
-		[data.start_time, data.end_time, data.user, data.equipment, data.reserve_comment]
-	);
+	const reservation_id: ReservationId = (
+		await db.one(
+			'INSERT INTO reservation (start_time, end_time, "user", equipment, comment) VALUES ($1, $2, $3, $4,$5) RETURNING id',
+			[data.start_time, data.end_time, data.user, data.equipment, data.reserve_comment]
+		)
+	).id;
+
+	addReservationToCalendars(
+		reservation_id,
+		{ id: user_id as UserId, name: user.name, email: user.email },
+		data
+	).then(async (r) => {
+		console.log('Calender added', r);
+		for (const [cid, eid] of Object.entries(r || {})) {
+			await db.query(
+				'INSERT INTO gcalendar_event_for_reservation (gcalendar_event_id,gcalendar_id,reservation) VALUES ($1,$2,$3)',
+				[eid, cid, reservation_id]
+			);
+		}
+	});
 
 	const reservations = (await db.query(
 		'SELECT * FROM "reservation" WHERE equipment = $1',

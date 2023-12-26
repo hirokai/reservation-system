@@ -1,4 +1,12 @@
+DROP TABLE gcalendar_event_for_reservation;
+
 DROP TABLE reservation;
+
+DROP TABLE gcalendar_for_equipment;
+
+DROP TABLE equipment_in_gcalendar_for_user;
+
+DROP TABLE gcalendar_for_user;
 
 DROP TABLE equipment;
 
@@ -9,6 +17,8 @@ DROP TABLE user_permission;
 DROP TABLE "user_session";
 
 DROP TABLE "user";
+
+DROP EXTENSION pgcrypto;
 
 -- https://github.com/Jakeii/nanoid-postgres
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
@@ -81,6 +91,28 @@ CREATE TABLE equipment(
     prop5_type text
 );
 
+CREATE TABLE gcalendar_for_user(
+    gcalendar_id text PRIMARY KEY,
+    "user" text NOT NULL REFERENCES "user"(id) ON DELETE CASCADE
+);
+
+CREATE TABLE equipment_in_gcalendar_for_user(
+    gcalendar_id text NOT NULL REFERENCES "gcalendar_for_user"(gcalendar_id) ON DELETE CASCADE,
+    equipment text NOT NULL REFERENCES equipment(id) ON DELETE CASCADE,
+    PRIMARY KEY (gcalendar_id, equipment)
+);
+
+CREATE TABLE gcalendar_for_equipment(
+    gcalendar_id text PRIMARY KEY,
+    equipment text UNIQUE NOT NULL REFERENCES equipment(id) ON DELETE CASCADE
+);
+
+CREATE TABLE gcalendar_for_equipment_subscription(
+    gcalendar_id text NOT NULL REFERENCES "gcalendar_for_user"(gcalendar_id) ON DELETE CASCADE,
+    "user" text NOT NULL REFERENCES "user"(id) ON DELETE CASCADE,
+    PRIMARY KEY (gcalendar_id, "user")
+);
+
 CREATE TABLE reservation(
     id text PRIMARY KEY DEFAULT (concat('R', nanoid())),
     "user" text NOT NULL REFERENCES "user"(id),
@@ -99,5 +131,11 @@ CREATE TABLE reservation(
     prop4_value text,
     prop5_key text,
     prop5_value text
+);
+
+CREATE TABLE gcalendar_event_for_reservation(
+    gcalendar_event_id text PRIMARY KEY,
+    gcalendar_id text NOT NULL,
+    reservation text NOT NULL REFERENCES reservation(id)
 );
 

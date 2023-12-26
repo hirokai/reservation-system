@@ -17,7 +17,6 @@ export const POST: RequestHandler = async ({ request, cookies, locals }) => {
 		const rows = Papa.parse(await request.text(), { header: true, skipEmptyLines: true }).data;
 		const places = await db.manyOrNone('SELECT * FROM place');
 		const placesDict = mapValues(keyBy(places, 'name'), 'id');
-		console.log({ placesDict });
 		// https://stackoverflow.com/questions/37300997/multi-row-insert-with-pg-promise
 		const dicts = rows.map((row: any) => ({
 			name: row['名前'],
@@ -25,7 +24,6 @@ export const POST: RequestHandler = async ({ request, cookies, locals }) => {
 			model: row['機種'],
 			place: placesDict[row['場所']] || null
 		}));
-		console.log({ dicts });
 		const cs = new pgp.helpers.ColumnSet(['name', 'description', 'model', 'place'], {
 			table: 'equipment'
 		});

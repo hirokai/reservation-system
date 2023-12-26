@@ -14,7 +14,7 @@
 			errorMessage = '名前は必須です。';
 			return;
 		}
-		if (places.find((eq: any) => eq.name === add_name)) {
+		if ((places || []).find((eq: any) => eq.name === add_name)) {
 			errorMessage = '同じ名前の装置が既に存在します。';
 			return;
 		}

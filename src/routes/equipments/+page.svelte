@@ -1,6 +1,5 @@
 <script lang="ts">
 	/** @type {import('./$types').LayoutServerLoad} */
-	export const ssr = false;
 
 	export let data;
 </script>

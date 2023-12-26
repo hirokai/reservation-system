@@ -9,7 +9,6 @@
 	/** @type {import('./$types').PageServerLoad} */
 	import { TabGroup, Tab, TabAnchor } from '@skeletonlabs/skeleton';
 
-	export const ssr = false;
 	let selectMode: '1st' | '2nd' | 'none' = '1st';
 
 	const formatDateHyphen = (time: Date) => {
@@ -19,16 +18,6 @@
 	const formatDateDayOnly = (date: Date) => {
 		const daynames = ['日', '月', '火', '水', '木', '金', '土'];
 		return `${date.getDate()}(${daynames[date.getDay()]})`;
-	};
-	$: tableSimple = {
-		// A list of heading labels.
-		head: ['予約者', '開始時刻', '終了時刻'],
-		// The data visibly shown in your table body UI.
-		body: (function (ds) {
-			return ds.map((d) => {
-				return [data.users[d.user].name, formatTime(d.start_time), formatTime(d.end_time)];
-			});
-		})(data.reservations)
 	};
 	let reserve_start_date: string;
 	let reserve_end_date: string;
@@ -45,16 +34,6 @@
 	$: reservations = data.reservations;
 
 	onMount(() => {
-		tableSimple = {
-			// A list of heading labels.
-			head: ['予約者', '開始時刻', '終了時刻'],
-			// The data visibly shown in your table body UI.
-			body: (function (ds) {
-				return ds.map((d) => {
-					return [data.users[d.user].name, formatTime(d.start_time), formatTime(d.end_time), ''];
-				});
-			})(data.reservations)
-		};
 		reserve_start_date = formatDateHyphen(new Date());
 		reserve_end_date = formatDateHyphen(new Date());
 	});
@@ -146,7 +125,22 @@
 		return false;
 	};
 
+	const checkReservationError = () => {
+		const start_date = reserve_start_date;
+		const start_time = reserve_start_time_hour + ':' + reserve_start_time_min;
+		const end_date = reserve_end_date;
+		const end_time = reserve_end_time_hour + ':' + reserve_end_time_min;
+		if (start_date === end_date && start_time === end_time) {
+			return '開始時刻と終了時刻が同じです';
+		}
+		return null;
+	};
 	const onClickReserve = () => {
+		const err = checkReservationError();
+		if (err) {
+			alert(err);
+			return;
+		}
 		fetch('/api/reserve', {
 			method: 'POST',
 			headers: {
@@ -201,18 +195,45 @@
 				equipment: data.equipment.id
 			})
 		})
+			.then((res) => {
+				if (res.ok) {
+					alert('予約を削除しました。');
+					return res.json();
+				} else {
+					alert('予約の削除に失敗しました。');
+				}
+			})
+			.then((res) => {
+				reservations = res.reservations.map((r: any) => {
+					return {
+						id: r.id,
+						user_name: r.user_name,
+						user_id: r.user_id,
+						start_time: new Date(r.start_time),
+						end_time: new Date(r.end_time)
+					};
+				});
+			});
+	};
+	const onClickGCalender = () => {
+		const r = confirm('Googleカレンダーに登録しますか？');
+		if (!r) {
+			return;
+		}
+		fetch(`/api/equipments/${data.equipment.id}/gcalendar/subscribe`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({})
+		})
 			.then((res) => res.json())
 			.then((res) => {
-				reservations = res.reservations.map(
-					(r: { id: string; user: string; start_time: string; end_time: string }) => {
-						return {
-							id: r.id,
-							user: r.user,
-							start_time: new Date(r.start_time),
-							end_time: new Date(r.end_time)
-						};
-					}
-				);
+				if (!res.ok) {
+					alert('登録に失敗しました');
+					return;
+				}
+				alert('登録しました。メールが届くので、そこからカレンダーを追加してください。');
 			});
 	};
 </script>
@@ -281,6 +302,11 @@
 			class="inline btn variant-filled"
 			disabled={!data.auth.user?.email}>予約する</button
 		>
+		<button
+			class="inline btn variant-ghost"
+			on:click={onClickGCalender}
+			disabled={!data.equipment.gcalendarEnabled}>Googleカレンダーに登録</button
+		>
 		<div class="h-8" class:invisible={!!data.auth.user?.email}>
 			予約するにはログインしてください
 		</div>
@@ -315,12 +341,12 @@
 								<tbody>
 									{#each reservations as reservation}
 										<tr>
-											<td class="w-40">{data.users[reservation.user].name}</td>
+											<td class="w-40">{reservation.user_name}</td>
 											<td class="w-40">{formatTime(reservation.start_time)}</td>
 											<td class="w-40">{formatTime(reservation.end_time)}</td>
 											<td class="w-40">{reservation.comment || ''}</td>
 											<td>
-												{#if data.myself?.id && data.myself.id === reservation.user}
+												{#if data.myself?.id && data.myself.id === reservation.user_id}
 													<button
 														class="bg-pink-500 text-white active:bg-pink-600 font-bold uppercase text-xs px-4 py-2 rounded shadow hover:shadow-md outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
 														type="button"
